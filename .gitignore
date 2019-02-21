@@ -41,7 +41,3 @@ Session.vim
 
 vendor
 /bazel-*
-WORKSPACE
-*.bazel
-BUILD
-
