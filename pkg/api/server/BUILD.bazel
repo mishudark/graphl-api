@@ -1,0 +1,18 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "endpoint_task.go",
+        "server.go",
+        "service_task.go",
+    ],
+    importpath = "github.com/mishudark/graphql-api/pkg/api/server",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//pkg/api:go_default_library",
+        "//pkg/middleware:go_default_library",
+        "@com_github_go_kit_kit//endpoint:go_default_library",
+        "@com_github_mishudark_errors//:go_default_library",
+    ],
+)

@@ -1,0 +1,14 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["metrics.go"],
+    importpath = "github.com/mishudark/graphql-api/pkg/metrics",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@io_opencensus_go//exporter/prometheus:go_default_library",
+        "@io_opencensus_go//stats:go_default_library",
+        "@io_opencensus_go//stats/view:go_default_library",
+        "@io_opencensus_go//tag:go_default_library",
+    ],
+)
