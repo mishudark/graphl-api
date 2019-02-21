@@ -39,6 +39,7 @@ Session.vim
 # make-related metadata
 /.make/
 
+vendor
 /bazel-*
 WORKSPACE
 *.bazel
