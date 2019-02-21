@@ -1,0 +1,14 @@
+github.com/99designs/gqlgen/graphql
+github.com/99designs/gqlgen/graphql/introspection
+github.com/agnivade/levenshtein
+github.com/go-kit/kit/endpoint
+github.com/vektah/gqlparser
+github.com/vektah/gqlparser/ast
+github.com/vektah/gqlparser/gqlerror
+github.com/vektah/gqlparser/lexer
+github.com/vektah/gqlparser/parser
+github.com/vektah/gqlparser/validator
+github.com/vektah/gqlparser/validator/rules
+github.schibsted.io/spt-DevRel/errors
+github.schibsted.io/spt-DevRel/graphql-api/pkg/api
+github.schibsted.io/spt-DevRel/graphql-api/pkg/api/server

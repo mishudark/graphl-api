@@ -1,0 +1,17 @@
+type Task {
+  id: ID!
+  text: String!
+  done: Boolean!
+}
+
+type Query {
+  todos: [Task!]!
+}
+
+input CreateTaskRequest {
+  text: String!
+}
+
+type Mutation {
+  createTask(input: CreateTaskRequest!): Task!
+}
