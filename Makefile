@@ -10,10 +10,10 @@ PORT                 ?= 8000
 GO_BUILD_FLAGS       ?= -ldflags "-d -s -w" -tags netgo -installsuffix netgo
 PACKAGE_TIMESTAMP    ?=
 PUBLISH              ?= false
-DOCKER_PUBLISH_URL  ?=
-DOCKER_PUBLISH_USER ?=
-DOCKER_PUBLISH_PWD  ?=
-DOCKER_PUBLISH_TAG  ?=
+DOCKER_PUBLISH_URL   ?=
+DOCKER_PUBLISH_USER  ?=
+DOCKER_PUBLISH_PWD   ?=
+DOCKER_PUBLISH_TAG   ?=
 
 SERVER            = server
 GO_MOD_CACHE      = /go/pkg/mod
@@ -24,6 +24,7 @@ DOCKER            := $(shell command -v docker 2> /dev/null)
 .GOMODFILE        = go.mod
 .GIT              = .git
 .CACHE            = cache
+.PROJECT_MK       = project.mk
 
 check_defined = \
     $(strip $(foreach 1,$1, \
@@ -39,8 +40,34 @@ PACKAGE_TIMESTAMP = $(shell git rev-list --max-count=1 --timestamp HEAD | awk '{
 endif
 endif
 
-$(call check_defined, GO_MAIN_PATH, path to the main.go package required)
+define PROJECT_MK_CONTENT
+GO_MAIN_PATH  =
+IMAGE_NAME = server
+IMAGE_ENABLE = false
+PUBLISH = false
 
+DOCKER_PUBLISH_TAG =
+DOCKER_PUBLISH_URL =
+DOCKER_PUBLISH_USER =
+DOCKER_PUBLISH_PWD =
+endef
+export PROJECT_MK_CONTENT
+
+all:
+	$(info project.mk has been created, please review the config there)
+
+help: ## Show this help message.
+	@echo 'usage: make [target]'
+	@echo
+	@echo 'targets:'
+	@egrep '^(.+)\:\ ##\ (.+)' ${MAKEFILE_LIST} | column -t -c 2 -s ':#'
+
+ifneq ($(.PROJECT_MK),$(wildcard $(.PROJECT_MK)))
+	@echo "$$PROJECT_MK_CONTENT" > project.mk
+	$(info project.mk has been created, please review the config there)
+	$(info )
+else
+$(call check_defined, GO_MAIN_PATH, path to the main.go package required on project.mk)
 
 ifeq ($(IMAGE_ENABLE), true)
 $(call check_defined, DOCKER, please install docker)
@@ -118,7 +145,7 @@ build: |gomod dockerfile
 	docker build -t $(IMAGE_NAME) .
 
 test: |gomod
-	docker run -w /build -v $(shell pwd):/build -v $(shell pwd)/cache:$(GO_MOD_CACHE) -e GO111MODULE=on $(IMAGE_NAME)-build go test $(GO_BUILD_FLAGS) ./pkg/...
+	docker run -w /build -v $(shell pwd):/build -v $(shell pwd)/cache:$(GO_MOD_CACHE) -e GO111MODULE=on $(IMAGE_NAME)-build go test $(GO_BUILD_FLAGS) ./...
 
 ifeq ($(PUBLISH),true)
 publish: ## Publish a container to a docker registry [IMAGE_ENABLE and PUBLISH required]
@@ -145,7 +172,7 @@ build-impl: |gomod
 test: ## Run tests under pkg directory
 	@make test-impl
 test-impl: |gomod
-	GO111MODULE=on go test ./pkg/...
+	GO111MODULE=on go test ./...
 
 .PHONY: vendor
 vendor: ## Download the dependencies
@@ -153,8 +180,4 @@ vendor-impl: |gomod
 	GO111MODULE=on go mod download
 endif
 
-help: ## Show this help message.
-	@echo 'usage: make [target]'
-	@echo
-	@echo 'targets:'
-	@egrep '^(.+)\:\ ##\ (.+)' ${MAKEFILE_LIST} | column -t -c 2 -s ':#'
+endif
