@@ -1,0 +1,21 @@
+dist: trusty
+language: go
+go:
+- "1.11"
+cache:
+  directories:
+    - $HOME/bazel/install
+    - $HOME/bazel/outbase
+before_install:
+- |
+  URL="https://github.com/bazelbuild/bazel/releases/download/${V}/bazel-${V}-installer-${OS}-x86_64.sh"
+  wget -O install.sh "${URL}"
+  chmod +x install.sh
+  ./install.sh --user
+script:
+  bazel --output_base=${HOME}/bazel/outbase test //pkg/...
+
+env:
+  global:
+  - V=0.18.0
+  - OS=linux
