@@ -6,7 +6,7 @@ language: minimal
 cache:
   directories:
     - $HOME/bazel/install
-    - $HOME/bazel/outbase
+    - $HOME/bazel/outbase2
 
 before_install:
 - |
@@ -16,8 +16,10 @@ before_install:
   ./install.sh --user
 
 script:
-  - bazel --output_base=${HOME}/bazel/outbase test --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //pkg/...
-  - bazel --output_base=${HOME}/bazel/outbase build --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //cmd/graphql:docker
+  #- bazel --output_base=${HOME}/bazel/outbase test --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //pkg/...
+  #- bazel --output_base=${HOME}/bazel/outbase build --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //cmd/graphql:docker
+  - bazel --output_base=${HOME}/bazel/outbase2 test //pkg/...
+  - bazel --output_base=${HOME}/bazel/outbase2 build //cmd/graphql:docker
 
 
 env:
