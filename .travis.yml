@@ -2,6 +2,7 @@ dist: trusty
 language: minimal
 #go:
 #- "1.11"
+
 cache:
   directories:
     - $HOME/bazel/install
