@@ -15,7 +15,6 @@ before_install:
   chmod +x install.sh
   ./install.sh --user
 
-
 script:
   - bazel --output_base=${HOME}/bazel/outbase test --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //pkg/...
   - bazel --output_base=${HOME}/bazel/outbase build --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //cmd/graphql:docker
