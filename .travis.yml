@@ -1,7 +1,7 @@
 dist: trusty
 language: c
-go:
-- "1.11"
+#go:
+#- "1.11"
 cache:
   directories:
     - $HOME/bazel/install
