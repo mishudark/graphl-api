@@ -15,7 +15,7 @@ before_install:
   ./install.sh --user
 
 script:
-  - bazel --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 --output_base=${HOME}/bazel/outbase test //pkg/...
+  - bazel test --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 --output_base=${HOME}/bazel/outbase //pkg/...
   - bazel build --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //cmd/graphql:docker
 
 env:
