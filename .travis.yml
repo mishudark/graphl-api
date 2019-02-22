@@ -1,5 +1,5 @@
 dist: trusty
-language: c
+language: minimal
 #go:
 #- "1.11"
 cache:
@@ -15,7 +15,7 @@ before_install:
   ./install.sh --user
 
 script:
-  - bazel --output_base=${HOME}/bazel/outbase test //pkg/...
+  - bazel --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 --output_base=${HOME}/bazel/outbase test //pkg/...
   - bazel build --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //cmd/graphql:docker
 
 env:
