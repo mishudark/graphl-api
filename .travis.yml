@@ -19,6 +19,7 @@ script:
   - bazel --output_base=${HOME}/bazel/outbase test --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //pkg/...
   - bazel --output_base=${HOME}/bazel/outbase build --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64 //cmd/graphql:docker
 
+
 env:
   global:
   - V=0.22.0
