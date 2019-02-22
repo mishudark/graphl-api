@@ -1,5 +1,5 @@
 dist: trusty
-language: go
+language: generic
 go:
 - "1.11"
 cache:
