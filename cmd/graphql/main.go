@@ -64,6 +64,6 @@ func main() {
 		errs <- fmt.Errorf("%s", <-c)
 	}()
 
-	log.Printf("connect to http://localhost:%s for GraphQL playground\n", port)
+	log.Printf("open http://localhost:%s for GraphQL playground\n", port)
 	log.Println("terminated", <-errs)
 }
