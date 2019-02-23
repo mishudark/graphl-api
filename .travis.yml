@@ -7,7 +7,7 @@ cache:
   directories:
     - $HOME/bazel/install
     - $HOME/bazel/outbase
-    - /go/pkg/mod
+    - $GOPATH/pkg/mod
 
       #before_install:
       #- |
