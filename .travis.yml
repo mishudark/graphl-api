@@ -17,8 +17,8 @@ cache:
       #  ./install.sh --user
 
 script:
+  - make test
   - make docker-build
-  - make docker-run
 
 env:
   global:
