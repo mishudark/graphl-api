@@ -16,9 +16,8 @@ before_install:
   ./install.sh --user
 
 script:
-  - bazel --output_base=${HOME}/bazel/outbase test //pkg/...
-  - bazel --output_base=${HOME}/bazel/outbase build //cmd/graphql:docker
-
+  - make bazel-test
+  - make bazel-build
 
 env:
   global:
