@@ -16,8 +16,8 @@ before_install:
   ./install.sh --user
 
 script:
-  - make bazel-test
-  - make bazel-build
+  - make docker-build
+  - make docker-run
 
 env:
   global:

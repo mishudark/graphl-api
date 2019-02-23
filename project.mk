@@ -1,6 +1,10 @@
-GRAPHQL_PORT = 8000
-BAZEL_VERSION = 0.22.0
-BAZEL_OUTPUT = --output_base=${HOME}/bazel/outbase
+GRAPHQL_PORT    = 8000
+BAZEL_VERSION   = 0.22.0
+BAZEL_OUTPUT    = --output_base=${HOME}/bazel/outbase
+
+IMAGE_NAME      ?= graphql
+IMAGE_BASE      ?= alpine
+GO_BUILD_FLAGS  ?= -ldflags "-d -s -w" -tags netgo -installsuffix netgo
 
 OS := linux
 ifeq ($(shell uname), Darwin)
@@ -9,6 +13,9 @@ endif
 
 run: ## Run the project
 	GO111MODULE=on go run ./cmd/graphql
+
+build: ## Build the project
+	GO111MODULE=on go build -o server ./cmd/graphql
 
 test: ## Run tests under pkg directory
 	GO111MODULE=on go test ./pkg/...
@@ -21,6 +28,25 @@ bazel-install: ## Install bazel
 	rm -f install.sh
 
 install-bazel: bazel-install
+
+ifndef IMAGE_BUILD
+define IMAGE_BUILD
+FROM $(IMAGE_BASE)
+RUN apk add --no-cache ca-certificates
+WORKDIR /go/bin
+COPY server .
+CMD ["./server"]
+endef
+export IMAGE_BUILD
+endif
+
+docker-build:
+	@echo "$$IMAGE_BUILD" > Dockerfile
+	GO111MODULE=on GOOS=linux go build $(GO_BUILD_FLAGS) -o server ./cmd/graphql
+	docker build -t $(IMAGE_NAME) .
+
+docker-run:
+	docker run -p$(GRAPHQL_PORT):$(GRAPHQL_PORT) $(IMAGE_NAME)
 
 bazel-generate: ## Generate BUILD.bazel files
 	bazel $(BAZEL_OUTPUT) run //:gazelle
