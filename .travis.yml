@@ -20,7 +20,6 @@ script:
   - make test
   - make docker-build
 
-
 env:
   global:
   - V=0.22.0
