@@ -15,7 +15,6 @@ DOCKER_PUBLISH_USER  ?=
 DOCKER_PUBLISH_PWD   ?=
 DOCKER_PUBLISH_TAG   ?=
 
-SERVER            = server
 GO_MOD_CACHE      = /go/pkg/mod
 
 GO                := $(shell command -v go 2> /dev/null)
@@ -23,8 +22,9 @@ DOCKER            := $(shell command -v docker 2> /dev/null)
 
 .GOMODFILE        = go.mod
 .GIT              = .git
-.CACHE            = cache
+.CACHE            = .cache
 .PROJECT_MK       = project.mk
+.SERVER_NAME      = server.build
 
 check_defined = \
     $(strip $(foreach 1,$1, \
@@ -101,23 +101,38 @@ $(IMAGE_BUILD)
 WORKDIR /src
 COPY . .
 RUN mkdir -p $(GO_MOD_CACHE)
-RUN mv ./cache/* $(GO_MOD_CACHE)
-RUN GO111MODULE=on go build $(GO_BUILD_FLAGS) -o $(SERVER) $(GO_MAIN_PATH)
-RUN cp $(SERVER) /go/bin
+RUN mv ./$(.CACHE)/* $(GO_MOD_CACHE)
+RUN GO111MODULE=on go build $(GO_BUILD_FLAGS) -o $(.SERVER_NAME) $(GO_MAIN_PATH)
+RUN cp $(.SERVER_NAME) /go/bin
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /go/bin
-COPY --from=0 /go/bin/$(SERVER) .
-CMD ["./server"]
+COPY --from=0 /go/bin/$(.SERVER_NAME) .
+CMD ["./$(.SERVER_NAME)"]
 endef
 export IMAGE_PROD
 endif
+
+define IMAGE_FAST
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+WORKDIR /go/bin
+COPY $(.SERVER_NAME) .
+CMD ["./$(.SERVER_NAME)"]
+endef
+export IMAGE_FAST
 
 image-build:
 	@echo "$$IMAGE_BUILD" > Dockerfile
 	docker build -t $(IMAGE_NAME)-build .
 
+image-static: |static-build
+	@echo "$$IMAGE_FAST" > Dockerfile
+	docker build -t $(IMAGE_NAME) .
+
+run-static: |image-static
+	docker run -p$(PORT):$(PORT) $(IMAGE_NAME)
 
 gomod:
 ifneq ($(.GOMODFILE),$(wildcard $(.GOMODFILE)))
@@ -128,24 +143,32 @@ endif
 dockerfile:
 	@echo "$$IMAGE_PROD" > Dockerfile
 
-ifeq ($(IMAGE_ENABLE), true)
+static-build:
+	GO111MODULE=on GOOS=linux go build $(GO_BUILD_FLAGS) -o $(.SERVER_NAME) $(GO_MAIN_PATH)
+
+local-test:
+	GO111MODULE=on go test ./...
+
+cache:
 ifneq ($(.CACHE),$(wildcard $(.CACHE)))
-	$(error cache missing, try running: make vendor)
+	mkdir $(.CACHE)
+	touch $(.CACHE)/empty
 endif
+
+ifeq ($(IMAGE_ENABLE), true)
 
 .PHONY: vendor
 vendor: |image-build
 	docker run -w /build -v $(shell pwd):/build -v $(shell pwd)/cache:$(GO_MOD_CACHE) -e GO111MODULE=on $(IMAGE_NAME)-build go mod download
 
-
-run: |build
+run: |cache build
 	docker run -p$(PORT):$(PORT) $(IMAGE_NAME)
 
-build: |gomod dockerfile
+build: |gomod cache dockerfile
 	docker build -t $(IMAGE_NAME) .
 
-test: |gomod
-	docker run -w /build -v $(shell pwd):/build -v $(shell pwd)/cache:$(GO_MOD_CACHE) -e GO111MODULE=on $(IMAGE_NAME)-build go test $(GO_BUILD_FLAGS) ./...
+test: |gomod cache
+	docker run -w /build -v $(shell pwd):/build -v $(shell pwd)/$(.CACHE):$(GO_MOD_CACHE) -e GO111MODULE=on $(IMAGE_NAME)-build go test $(GO_BUILD_FLAGS) ./...
 
 ifeq ($(PUBLISH),true)
 publish: ## Publish a container to a docker registry [IMAGE_ENABLE and PUBLISH required]
@@ -170,9 +193,7 @@ build-impl: |gomod
 	GO111MODULE=on go build $(GO_MAIN_PATH)
 
 test: ## Run tests under pkg directory
-	@make test-impl
-test-impl: |gomod
-	GO111MODULE=on go test ./...
+	@make local-test
 
 .PHONY: vendor
 vendor: ## Download the dependencies
