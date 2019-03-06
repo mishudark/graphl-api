@@ -1,8 +1,3 @@
-# This is from Bazel's former travis setup, to avoid blowing up the RAM usage.
-startup --host_jvm_args=-Xmx2500m
-startup --host_jvm_args=-Xms2500m
-test --ram_utilization_factor=10
-
 # This is so we understand failures better
 build --verbose_failures
 
@@ -12,3 +7,42 @@ build --verbose_failures
 # fails to run tests.
 build --spawn_strategy=standalone --genrule_strategy=standalone
 test --test_strategy=standalone
+
+###############################
+# Directory structure         #
+###############################
+
+# Globally cache downloaded artifacts.
+build --experimental_repository_cache=~/.bazel_cache/
+test --experimental_repository_cache=~/.bazel_cache/
+run --experimental_repository_cache=~/.bazel_cache/
+
+# Don't create bazel-* symlinks in the WORKSPACE directory. These
+# symlinks require .gitignore and may scare users. Instead, run
+# `bazel info bazel-bin` to find out where the outputs are stored.
+build --symlink_prefix=/
+
+# Another good choice is to create a dist/ directory. Then you can
+# use build --symlink_prefix=dist/ to get folders like dist/bin.
+# Be aware that this setup will still create a bazel-out symlink in
+# your project directory, which you may need to exclude from the
+# editor's search path.
+
+###############################
+# Output                      #
+###############################
+
+# A more useful default output mode for bazel query, which
+# prints "ng_module rule //foo:bar" instead of just "//foo:bar".
+query --output=label_kind
+
+# By default, failing tests don't print any output, it's logged to a
+# file instead.
+
+test --test_output=errors
+
+# Show which actions are running under which workers and print all
+# the actions running in parallel. This shows that Bazel runs on all
+# cores of a CPU.
+build --experimental_ui
+test --experimental_ui
