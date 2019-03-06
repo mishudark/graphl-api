@@ -19,5 +19,5 @@ script:
 
 env:
   global:
-  - V=0.22.0
+  - V=0.23.0
   - OS=linux

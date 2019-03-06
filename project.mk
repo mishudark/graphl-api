@@ -1,5 +1,5 @@
 GRAPHQL_PORT    = 8000
-BAZEL_VERSION   = 0.22.0
+BAZEL_VERSION   = 0.23.0
 BAZEL_OUTPUT    = --output_base=${HOME}/bazel/outbase
 
 IMAGE_NAME      ?= graphql
