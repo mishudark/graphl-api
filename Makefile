@@ -2,23 +2,25 @@
 .PHONY: help
 .DEFAULT_GOAL := help
 
-IMAGE_NAME           ?=
-GO_MAIN_PATH         ?=
-IMAGE_ENABLE         ?= false
-IMAGE_BASE           ?= golang:alpine
-PORT                 ?= 8000
-GO_BUILD_FLAGS       ?= -ldflags "-d -s -w" -tags netgo -installsuffix netgo
-PACKAGE_TIMESTAMP    ?=
-PUBLISH              ?= false
-DOCKER_PUBLISH_URL   ?=
-DOCKER_PUBLISH_USER  ?=
-DOCKER_PUBLISH_PWD   ?=
-DOCKER_PUBLISH_TAG   ?=
+IMAGE_NAME          ?=
+GO_MAIN_PATH        ?=
+IMAGE_ENABLE        ?= false
+IMAGE_BASE          ?= golang:alpine
+PORT                ?= 8000
+GO_BUILD_FLAGS      ?= -ldflags "-d -s -w" -tags netgo -installsuffix netgo
+PACKAGE_TIMESTAMP   ?=
+PUBLISH             ?= false
+DOCKER_PUBLISH_URL  ?=
+DOCKER_PUBLISH_USER ?=
+DOCKER_PUBLISH_PWD  ?=
+DOCKER_PUBLISH_TAG  ?=
+LINT_VERSION        ?= v1.15.0
 
 GO_MOD_CACHE      = /go/pkg/mod
 
 GO                := $(shell command -v go 2> /dev/null)
 DOCKER            := $(shell command -v docker 2> /dev/null)
+LINTER            := $(shell command -v golangci-lint 2> /dev/null)
 
 .GOMODFILE        = go.mod
 .GIT              = .git
@@ -133,6 +135,16 @@ image-static: |static-build
 
 run-static: |image-static
 	docker run -p$(PORT):$(PORT) $(IMAGE_NAME)
+
+check-linter:
+ifndef LINTER
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(shell go env GOPATH)/bin $(LINT_VERSION)
+endif
+
+lint: ## Lint with the standard options
+	@make lint-impl
+lint-impl: |check-linter
+	golangci-lint run
 
 gomod:
 ifneq ($(.GOMODFILE),$(wildcard $(.GOMODFILE)))
