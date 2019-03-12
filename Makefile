@@ -144,7 +144,7 @@ endif
 lint: ## Lint with the standard options
 	@make lint-impl
 lint-impl: |check-linter
-	golangci-lint run
+	GO111MODULE=on golangci-lint run
 
 gomod:
 ifneq ($(.GOMODFILE),$(wildcard $(.GOMODFILE)))
