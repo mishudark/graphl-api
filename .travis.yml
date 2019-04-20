@@ -3,8 +3,8 @@ language: minimal
 
 cache:
   directories:
-    - $HOME/bazel/install
-    - $HOME/bazel/outbase
+    - $HOME/bazel/output/external
+    - $HOME/bazel/repository_cache
 
 before_install:
 - |
@@ -19,5 +19,5 @@ script:
 
 env:
   global:
-  - V=0.23.0
+  - V=0.24.0
   - OS=linux
