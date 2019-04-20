@@ -1,6 +1,7 @@
 -include project.mk
 .PHONY: help
 .DEFAULT_GOAL := help
+SHELL := /bin/bash
 
 IMAGE_NAME          ?=
 GO_MAIN_PATH        ?=
@@ -8,7 +9,7 @@ IMAGE_ENABLE        ?= false
 IMAGE_BASE          ?= golang:alpine
 PORT                ?= 8000
 GO_BUILD_FLAGS      ?= -ldflags "-d -s -w" -tags netgo -installsuffix netgo
-PACKAGE_TIMESTAMP   ?=
+PACKAGE_TIMESTAMP   ?= latest
 PUBLISH             ?= false
 DOCKER_PUBLISH_URL  ?=
 DOCKER_PUBLISH_USER ?=
@@ -21,6 +22,7 @@ GO_MOD_CACHE      = /go/pkg/mod
 GO                := $(shell command -v go 2> /dev/null)
 DOCKER            := $(shell command -v docker 2> /dev/null)
 LINTER            := $(shell command -v golangci-lint 2> /dev/null)
+
 
 .GOMODFILE        = go.mod
 .GIT              = .git
@@ -104,11 +106,13 @@ WORKDIR /src
 COPY . .
 RUN mkdir -p $(GO_MOD_CACHE)
 RUN mv ./$(.CACHE)/* $(GO_MOD_CACHE)
-RUN GO111MODULE=on go build $(GO_BUILD_FLAGS) -o $(.SERVER_NAME) $(GO_MAIN_PATH)
+RUN GO111MODULE=on CGO_ENABLED=0 go build $(GO_BUILD_FLAGS) -o $(.SERVER_NAME) $(GO_MAIN_PATH)
 RUN cp $(.SERVER_NAME) /go/bin
 
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
+RUN adduser -S -D -H -h /app appuser
+USER appuser
 WORKDIR /go/bin
 COPY --from=0 /go/bin/$(.SERVER_NAME) .
 CMD ["./$(.SERVER_NAME)"]
@@ -119,6 +123,8 @@ endif
 define IMAGE_FAST
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
+RUN adduser -S -D -H -h /app appuser
+USER appuser
 WORKDIR /go/bin
 COPY $(.SERVER_NAME) .
 CMD ["./$(.SERVER_NAME)"]
@@ -126,12 +132,12 @@ endef
 export IMAGE_FAST
 
 image-build:
-	@echo "$$IMAGE_BUILD" > Dockerfile
-	docker build -t $(IMAGE_NAME)-build .
+	@echo "$$IMAGE_BUILD" > .Dockerfile
+	docker build -t $(IMAGE_NAME)-build -f .Dockerfile .
 
 image-static: |static-build
-	@echo "$$IMAGE_FAST" > Dockerfile
-	docker build -t $(IMAGE_NAME) .
+	@echo "$$IMAGE_FAST" > .Dockerfile
+	docker build -t $(IMAGE_NAME) -f .Dockerfile .
 
 run-static: |image-static
 	docker run -p$(PORT):$(PORT) $(IMAGE_NAME)
@@ -153,13 +159,13 @@ endif
 
 .PHONY: dockerfile
 dockerfile:
-	@echo "$$IMAGE_PROD" > Dockerfile
+	@echo "$$IMAGE_PROD" > .Dockerfile
 
 static-build:
-	GO111MODULE=on GOOS=linux go build $(GO_BUILD_FLAGS) -o $(.SERVER_NAME) $(GO_MAIN_PATH)
+	GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build $(GO_BUILD_FLAGS) -o $(.SERVER_NAME) $(GO_MAIN_PATH)
 
 local-test:
-	GO111MODULE=on go test ./...
+	GO111MODULE=on CGO_ENABLED=0 go test ./...
 
 cache:
 ifneq ($(.CACHE),$(wildcard $(.CACHE)))
@@ -171,24 +177,25 @@ ifeq ($(IMAGE_ENABLE), true)
 
 .PHONY: vendor
 vendor: |image-build
-	docker run -w /build -v $(shell pwd):/build -v $(shell pwd)/cache:$(GO_MOD_CACHE) -e GO111MODULE=on $(IMAGE_NAME)-build go mod download
+	docker run -w /build -v $(shell pwd):/build -v $(shell pwd)/$(.CACHE):$(GO_MOD_CACHE) -e GO111MODULE=on $(IMAGE_NAME)-build go mod download
 
 run: |cache build
 	docker run -p$(PORT):$(PORT) $(IMAGE_NAME)
 
 build: |gomod cache dockerfile
-	docker build -t $(IMAGE_NAME) .
+	docker build -t $(IMAGE_NAME) -f .Dockerfile .
 
-test: |gomod cache
-	docker run -w /build -v $(shell pwd):/build -v $(shell pwd)/$(.CACHE):$(GO_MOD_CACHE) -e GO111MODULE=on $(IMAGE_NAME)-build go test $(GO_BUILD_FLAGS) ./...
+test: |gomod cache image-build
+	docker run -w /build -v $(shell pwd):/build -v $(shell pwd)/$(.CACHE):$(GO_MOD_CACHE) -e GO111MODULE=on -e CGO_ENABLED=0 $(IMAGE_NAME)-build go test $(GO_BUILD_FLAGS) ./...
 
 ifeq ($(PUBLISH),true)
 publish: ## Publish a container to a docker registry [IMAGE_ENABLE and PUBLISH required]
 	@make publish-impl
-publish-impl: |build
+publish-impl:
 	@docker login -u $(DOCKER_PUBLISH_USER) -p $(DOCKER_PUBLISH_PWD) $(DOCKER_PUBLISH_URL)
-	docker -t $(shell docker images -q $(IMAGE_NAME)) $(DOCKER_PUBLISH_URL)/$(DOCKER_PUBLISH_TAG)
-	docker push $(DOCKER_PUBLISH_URL)/$(DOCKER_PUBLISH_TAG)
+	$(eval PACKAGE_TIMESTAMP := $(shell docker images -q $(IMAGE_NAME)))
+	docker tag $(shell docker images -q $(IMAGE_NAME)) $(DOCKER_PUBLISH_URL)/$(DOCKER_PUBLISH_TAG):$(PACKAGE_TIMESTAMP)
+	docker push $(DOCKER_PUBLISH_URL)/$(DOCKER_PUBLISH_TAG):$(PACKAGE_TIMESTAMP)
 endif
 
 endif
