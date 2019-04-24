@@ -3,7 +3,7 @@ language: minimal
 
 cache:
   directories:
-    - $HOME/bazel/output/external
+    - $HOME/bazel/output
     - $HOME/bazel/repository_cache
 
 before_install:
