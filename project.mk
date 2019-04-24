@@ -61,6 +61,9 @@ bazel-test: ## Test
 bazel-build: ## Build the project
 	bazel $(BAZEL_OUTPUT) build $(BAZEL_REPOSITORY) //cmd/graphql:docker
 
+clean:
+	rm -rf ${HOME}/bazel/output/execroot
+
 bazel-run: ## Run the project inside docker
 	bazel $(BAZEL_OUTPUT) run //cmd/graphql:docker -- --norun
 	docker run --rm -p $(GRAPHQL_PORT):$(GRAPHQL_PORT) bazel/cmd/graphql:docker

@@ -16,6 +16,7 @@ before_install:
 script:
   - make bazel-test
   - make bazel-build
+  - make clean
 
 env:
   global:
