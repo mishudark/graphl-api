@@ -1,7 +1,8 @@
-GRAPHQL_PORT    = 8000
-BAZEL_VERSION   = 0.24.0
-BAZEL_OUTPUT    = --output_base=${HOME}/bazel/output
+GRAPHQL_PORT     = 8000
+BAZEL_VERSION    = 0.24.0
+BAZEL_OUTPUT     = --output_base=${HOME}/bazel/output
 BAZEL_REPOSITORY = --repository_cache=${HOME}/bazel/repository_cache
+BAZEL_FLAGS      = --experimental_remote_download_outputs=minimal --experimental_inmemory_jdeps_files --experimental_inmemory_dotd_files
 
 IMAGE_NAME      ?= graphql
 IMAGE_BASE      ?= alpine
@@ -56,10 +57,10 @@ bazel-deps-update: ## Update bazel dependencies based on Gopkg.lock
 	bazel $(BAZEL_OUTPUT) run //:gazelle -- update-repos -from_file=go.mod
 
 bazel-test: ## Test
-	bazel $(BAZEL_OUTPUT) test $(BAZEL_REPOSITORY) //pkg/...
+	bazel $(BAZEL_OUTPUT) test $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) //pkg/...
 
 bazel-build: ## Build the project
-	bazel $(BAZEL_OUTPUT) build $(BAZEL_REPOSITORY) //cmd/graphql:docker
+	bazel $(BAZEL_OUTPUT) build $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) //cmd/graphql:docker
 
 bazel-run: ## Run the project inside docker
 	bazel $(BAZEL_OUTPUT) run //cmd/graphql:docker -- --norun

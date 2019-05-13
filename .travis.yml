@@ -4,7 +4,7 @@ sudo: true
 
 cache:
   directories:
-    - $HOME/bazel/output/external
+    - $HOME/bazel/output
     - $HOME/bazel/repository_cache
 
 before_install:
@@ -20,5 +20,5 @@ script:
 
 env:
   global:
-  - V=0.24.0
+  - V=0.25.2
   - OS=linux
