@@ -4,7 +4,7 @@ sudo: true
 
 cache:
   directories:
-    - $HOME/bazel/output
+    - $HOME/bazel/output/external
     - $HOME/bazel/repository_cache
 
 before_install:
