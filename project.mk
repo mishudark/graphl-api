@@ -1,5 +1,5 @@
 GRAPHQL_PORT     = 8000
-BAZEL_VERSION    = 0.24.0
+BAZEL_VERSION    = 0.26
 BAZEL_OUTPUT     = --output_base=${HOME}/bazel/output
 BAZEL_REPOSITORY = --repository_cache=${HOME}/bazel/repository_cache
 BAZEL_FLAGS      = --experimental_remote_download_outputs=minimal --experimental_inmemory_jdeps_files --experimental_inmemory_dotd_files
