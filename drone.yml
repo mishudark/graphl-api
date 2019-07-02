@@ -2,7 +2,67 @@ kind: pipeline
 name: default
 
 steps:
-- name: build
-  image: golang
+- name: restore
+  image: plugins/s3-cache
+  volumes:
+  - name: cache
+    path: /go/pkg/mod
+  settings:
+    pull: true
+    endpoint: http://minio.default
+    access_key: myaccesskey
+    secret_key: mysecretkey
+    restore: true
+    debug: false
+    workdir: /go/pkg/mod
+
+
+- name: move
+  image: golang:alpine
+  volumes:
+  - name: cache
+    path: /go/pkg/mod
   commands:
+  - mv go/pkg/mod/* /go/pkg/mod/
+
+
+- name: build
+  image: golang:alpine
+  detach: true
+  volumes:
+  - name: cache
+    path: /go/pkg/mod
+  commands:
+  - apk add make
   - make build
+
+- name: test
+  image: golang:alpine
+  detach: true
+  volumes:
+  - name: cache
+    path: /go/pkg/mod
+  commands:
+  - apk add make
+  - make test
+
+- name: cache
+  image: plugins/s3-cache
+  volumes:
+  - name: cache
+    path: /go/pkg/mod
+  settings:
+    pull: true
+    endpoint: http://minio.default
+    access_key: myaccesskey
+    secret_key: mysecretkey
+    rebuild: true
+    mount:
+      - /go/pkg/mod
+
+    when:
+      event: push
+
+volumes:
+- name: cache
+  temp: {}

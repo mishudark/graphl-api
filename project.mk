@@ -20,7 +20,7 @@ build: ## Build the project
 	GO111MODULE=on go build -o server ./cmd/graphql
 
 test: ## Run tests under pkg directory
-	GO111MODULE=on go test ./pkg/...
+	GO111MODULE=on CGO_ENABLED=0 go test ./...
 
 
 bazel-install: ## Install bazel
