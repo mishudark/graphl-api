@@ -1,68 +1,64 @@
 kind: pipeline
-name: default
+name: bazel
+
 
 steps:
-- name: restore
-  image: plugins/s3-cache
-  volumes:
-  - name: cache
-    path: /go/pkg/mod
-  settings:
-    pull: true
-    endpoint: http://minio.default
-    access_key: myaccesskey
-    secret_key: mysecretkey
-    restore: true
-    debug: false
-    workdir: /go/pkg/mod
-
-
-- name: move
-  image: golang:alpine
-  volumes:
-  - name: cache
-    path: /go/pkg/mod
-  commands:
-  - mv go/pkg/mod/* /go/pkg/mod/
-
-
-- name: build
-  image: golang:alpine
-  detach: true
-  volumes:
-  - name: cache
-    path: /go/pkg/mod
-  commands:
-  - apk add make
-  - make build
+  #- name: restore
+  #  image: plugins/s3-cache
+  #  settings:
+  #    pull: true
+  #    endpoint: http://minio.default
+  #    access_key: myaccesskey
+  #    secret_key: mysecretkey
+  #    restore: true
+  #    debug: false
+  #    workdir: /drone/src/external
+  #- name: cache
+  #  image: alpine:latest
+  #  volumes:
+  #  - name: cache
+  #    path: /root/bazel
+  #  commands:
+  #  - apk update
+  #  - apk add bash
+  #  - cp distdir.sh /root/bazel/distfiles
+  #  - cd /root/bazel/distfiles
+  #  - chmod +x ./distdir.sh
+  #  - bash distdir.sh
 
 - name: test
-  image: golang:alpine
-  detach: true
+  image: gcr.io/cloud-builders/bazel:latest
   volumes:
   - name: cache
-    path: /go/pkg/mod
+    path: /root/bazel
   commands:
-  - apk add make
-  - make test
+  - ls /root/bazel/distfiles
+  - apt install make -y
+  - make bazel-test
+    #- make bazel-build
+    #- rsync -a /root/bazel/output/external /drone/src/
+    #resources:
+    #  limits:
+    #    memory: 800Mi
 
-- name: cache
-  image: plugins/s3-cache
-  volumes:
-  - name: cache
-    path: /go/pkg/mod
-  settings:
-    pull: true
-    endpoint: http://minio.default
-    access_key: myaccesskey
-    secret_key: mysecretkey
-    rebuild: true
-    mount:
-      - /go/pkg/mod
-
-    when:
-      event: push
-
+    #- name: cache
+    #  image: plugins/s3-cache
+    #  volumes:
+    #  - name: cache
+    #    path: /root/bazel
+    #  settings:
+    #    pull: true
+    #    endpoint: http://minio.default
+    #    access_key: myaccesskey
+    #    secret_key: mysecretkey
+    #    rebuild: true
+    #    mount:
+    #      - /drone/src/external
+    #
+    #    when:
+    #      event: push
+    #
 volumes:
 - name: cache
-  temp: {}
+  host:
+    path: /mnt/stateful_partition/tmp/

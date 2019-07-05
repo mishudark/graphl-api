@@ -1,8 +1,13 @@
 GRAPHQL_PORT     = 8000
 BAZEL_VERSION    = 0.26
-BAZEL_OUTPUT     = --output_base=${HOME}/bazel/output
-BAZEL_REPOSITORY = --repository_cache=${HOME}/bazel/repository_cache
+PREFIX = ${HOME}
+BAZEL_OUTPUT     = --output_base=${PREFIX}/bazel/output
+BAZEL_REPOSITORY = --repository_cache=${PREFIX}/bazel/repository_cache
 BAZEL_FLAGS      = --experimental_remote_download_outputs=minimal --experimental_inmemory_jdeps_files --experimental_inmemory_dotd_files
+BAZEL_BUILDKITE  = --flaky_test_attempts=3 --build_tests_only --local_test_jobs=12 --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest --experimental_repository_cache_hardlinks --disk_cache= --sandbox_tmpfs_path=/tmp --experimental_build_event_json_file_path_conversion=false --build_event_json_file=/tmp/test_bep.json
+
+BAZEL_BUILDKITE_BUILD = --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest --experimental_repository_cache_hardlinks --disk_cache= --sandbox_tmpfs_path=/tmp
+BAZEL_REMOTE     = --remote_cache=http://bazelcache.default:8080
 
 IMAGE_NAME      ?= graphql
 IMAGE_BASE      ?= alpine
@@ -53,15 +58,23 @@ docker-run:
 bazel-generate: ## Generate BUILD.bazel files
 	bazel $(BAZEL_OUTPUT) run //:gazelle
 
+bazel-fetch: ## Generate BUILD.bazel files
+	bazel fetch $(BAZEL_REPOSITORY)
+
 bazel-deps-update: ## Update bazel dependencies based on Gopkg.lock
 	bazel $(BAZEL_OUTPUT) run //:gazelle -- update-repos -from_file=go.mod
 
 bazel-test: ## Test
-	bazel $(BAZEL_OUTPUT) test $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) //pkg/...
+	bazel test --distdir=$(HOME)/bazel/distfiles $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) $(BAZEL_BUILDKITE) //pkg/...
+	#bazel $(BAZEL_OUTPUT) test $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) $(BAZEL_BUILDKITE) //pkg/...
 
-bazel-build: ## Build the project
-	bazel $(BAZEL_OUTPUT) build $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) //cmd/graphql:docker
+bazel-dist: ## Build the project
+	bazel $(BAZEL_OUTPUT) run --distdir=./distfiles2/ $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) :additional_distfiles
 
-bazel-run: ## Run the project inside docker
-	bazel $(BAZEL_OUTPUT) run //cmd/graphql:docker -- --norun
-	docker run --rm -p $(GRAPHQL_PORT):$(GRAPHQL_PORT) bazel/cmd/graphql:docker
+bazel-sync:
+	bazel sync $(BAZEL_REPOSITORY) --experimental_repository_cache_hardlinks --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --keep_going --announce_rc
+
+bazel-build: ## Run the project inside docker
+	#bazel $(BAZEL_OUTPUT) build $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) $(BAZEL_BUILDKITE_BUILD) //cmd/graphql:docker -- --norun
+	#docker run --rm -p $(GRAPHQL_PORT):$(GRAPHQL_PORT) bazel/cmd/graphql:docker
+	bazel build $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) $(BAZEL_BUILDKITE_BUILD) //cmd/graphql:docker
