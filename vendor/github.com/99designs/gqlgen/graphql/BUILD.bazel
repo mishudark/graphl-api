@@ -1,0 +1,30 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "bool.go",
+        "context.go",
+        "error.go",
+        "exec.go",
+        "float.go",
+        "id.go",
+        "int.go",
+        "jsonw.go",
+        "map.go",
+        "oneshot.go",
+        "recovery.go",
+        "response.go",
+        "string.go",
+        "time.go",
+        "tracer.go",
+        "version.go",
+    ],
+    importmap = "github.com/mishudark/graphql-api/vendor/github.com/99designs/gqlgen/graphql",
+    importpath = "github.com/99designs/gqlgen/graphql",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/vektah/gqlparser/ast:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/gqlerror:go_default_library",
+    ],
+)

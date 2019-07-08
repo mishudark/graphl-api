@@ -1,0 +1,13 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["complexity.go"],
+    importmap = "github.com/mishudark/graphql-api/vendor/github.com/99designs/gqlgen/complexity",
+    importpath = "github.com/99designs/gqlgen/complexity",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/99designs/gqlgen/graphql:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/ast:go_default_library",
+    ],
+)

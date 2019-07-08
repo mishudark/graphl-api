@@ -12,7 +12,7 @@ go_library(
         "//pkg/graphql:go_default_library",
         "//pkg/health:go_default_library",
         "//pkg/metrics:go_default_library",
-        "@com_github_99designs_gqlgen//handler:go_default_library",
+        "//vendor/github.com/99designs/gqlgen/handler:go_default_library",
     ],
 )
 

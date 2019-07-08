@@ -12,7 +12,7 @@ go_library(
     deps = [
         "//pkg/api:go_default_library",
         "//pkg/middleware:go_default_library",
-        "@com_github_go_kit_kit//endpoint:go_default_library",
-        "@com_github_mishudark_errors//:go_default_library",
+        "//vendor/github.com/go-kit/kit/endpoint:go_default_library",
+        "//vendor/github.com/mishudark/errors:go_default_library",
     ],
 )

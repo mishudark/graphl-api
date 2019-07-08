@@ -11,10 +11,10 @@ go_library(
     deps = [
         "//pkg/api:go_default_library",
         "//pkg/api/server:go_default_library",
-        "@com_github_99designs_gqlgen//graphql:go_default_library",
-        "@com_github_99designs_gqlgen//graphql/introspection:go_default_library",
-        "@com_github_mishudark_errors//:go_default_library",
-        "@com_github_vektah_gqlparser//:go_default_library",
-        "@com_github_vektah_gqlparser//ast:go_default_library",
+        "//vendor/github.com/99designs/gqlgen/graphql:go_default_library",
+        "//vendor/github.com/99designs/gqlgen/graphql/introspection:go_default_library",
+        "//vendor/github.com/mishudark/errors:go_default_library",
+        "//vendor/github.com/vektah/gqlparser:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/ast:go_default_library",
     ],
 )

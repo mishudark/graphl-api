@@ -1,0 +1,26 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "context.go",
+        "graphql.go",
+        "playground.go",
+        "stub.go",
+        "websocket.go",
+    ],
+    importmap = "github.com/mishudark/graphql-api/vendor/github.com/99designs/gqlgen/handler",
+    importpath = "github.com/99designs/gqlgen/handler",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/99designs/gqlgen/complexity:go_default_library",
+        "//vendor/github.com/99designs/gqlgen/graphql:go_default_library",
+        "//vendor/github.com/gorilla/websocket:go_default_library",
+        "//vendor/github.com/hashicorp/golang-lru:go_default_library",
+        "//vendor/github.com/vektah/gqlparser:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/ast:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/gqlerror:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/parser:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/validator:go_default_library",
+    ],
+)

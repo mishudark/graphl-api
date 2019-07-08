@@ -1,0 +1,22 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "argmap.go",
+        "collections.go",
+        "definition.go",
+        "directive.go",
+        "document.go",
+        "dumper.go",
+        "fragment.go",
+        "operation.go",
+        "selection.go",
+        "source.go",
+        "type.go",
+        "value.go",
+    ],
+    importmap = "github.com/mishudark/graphql-api/vendor/github.com/vektah/gqlparser/ast",
+    importpath = "github.com/vektah/gqlparser/ast",
+    visibility = ["//visibility:public"],
+)

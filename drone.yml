@@ -21,6 +21,7 @@ steps:
   #  commands:
   #  - apk update
   #  - apk add bash
+  #  - mkdir /root/bazel/distfiles
   #  - cp distdir.sh /root/bazel/distfiles
   #  - cd /root/bazel/distfiles
   #  - chmod +x ./distdir.sh
@@ -32,9 +33,11 @@ steps:
   - name: cache
     path: /root/bazel
   commands:
-  - ls /root/bazel/distfiles
+    #- ls /root/bazel/distfiles
   - apt install make -y
   - make bazel-test
+  - make bazel-lint
+  - make bazel-build
     #- make bazel-build
     #- rsync -a /root/bazel/output/external /drone/src/
     #resources:

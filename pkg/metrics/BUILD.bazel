@@ -6,9 +6,9 @@ go_library(
     importpath = "github.com/mishudark/graphql-api/pkg/metrics",
     visibility = ["//visibility:public"],
     deps = [
-        "@io_opencensus_go//exporter/prometheus:go_default_library",
-        "@io_opencensus_go//stats:go_default_library",
-        "@io_opencensus_go//stats/view:go_default_library",
-        "@io_opencensus_go//tag:go_default_library",
+        "//vendor/go.opencensus.io/exporter/prometheus:go_default_library",
+        "//vendor/go.opencensus.io/stats:go_default_library",
+        "//vendor/go.opencensus.io/stats/view:go_default_library",
+        "//vendor/go.opencensus.io/tag:go_default_library",
     ],
 )

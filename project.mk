@@ -65,7 +65,7 @@ bazel-deps-update: ## Update bazel dependencies based on Gopkg.lock
 	bazel $(BAZEL_OUTPUT) run //:gazelle -- update-repos -from_file=go.mod
 
 bazel-test: ## Test
-	bazel test --distdir=$(HOME)/bazel/distfiles $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) $(BAZEL_BUILDKITE) //pkg/...
+	bazel test --distdir=${HOME}/bazel/distfiles $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) $(BAZEL_BUILDKITE) //pkg/...
 	#bazel $(BAZEL_OUTPUT) test $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) $(BAZEL_BUILDKITE) //pkg/...
 
 bazel-dist: ## Build the project
@@ -77,4 +77,7 @@ bazel-sync:
 bazel-build: ## Run the project inside docker
 	#bazel $(BAZEL_OUTPUT) build $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) $(BAZEL_BUILDKITE_BUILD) //cmd/graphql:docker -- --norun
 	#docker run --rm -p $(GRAPHQL_PORT):$(GRAPHQL_PORT) bazel/cmd/graphql:docker
-	bazel build $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) $(BAZEL_BUILDKITE_BUILD) //cmd/graphql:docker
+	bazel build --distdir=${HOME}/bazel/distfiles $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) $(BAZEL_BUILDKITE_BUILD) //cmd/graphql:docker
+
+bazel-lint:
+	bazel run --distdir=${HOME}/bazel/distfiles $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) $(BAZEL_REMOTE) $(BAZEL_BUILDKITE_BUILD) //:golangcilint

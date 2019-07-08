@@ -1,0 +1,17 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = [
+        "blockstring.go",
+        "lexer.go",
+        "token.go",
+    ],
+    importmap = "github.com/mishudark/graphql-api/vendor/github.com/vektah/gqlparser/lexer",
+    importpath = "github.com/vektah/gqlparser/lexer",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/vektah/gqlparser/ast:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/gqlerror:go_default_library",
+    ],
+)

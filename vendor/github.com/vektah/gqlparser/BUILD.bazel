@@ -1,0 +1,16 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["gqlparser.go"],
+    importmap = "github.com/mishudark/graphql-api/vendor/github.com/vektah/gqlparser",
+    importpath = "github.com/vektah/gqlparser",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//vendor/github.com/vektah/gqlparser/ast:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/gqlerror:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/parser:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/validator:go_default_library",
+        "//vendor/github.com/vektah/gqlparser/validator/rules:go_default_library",
+    ],
+)
