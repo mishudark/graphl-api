@@ -17,7 +17,6 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 http_archive(
     name = "io_bazel_rules_go",
     urls = [
-        "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/0.18.6/rules_go-0.18.6.tar.gz",
         "https://github.com/bazelbuild/rules_go/releases/download/0.18.6/rules_go-0.18.6.tar.gz",
     ],
     sha256 = "f04d2373bcaf8aa09bccb08a98a57e721306c8f6043a2a0ee610fd6853dcde3d",
@@ -72,6 +71,7 @@ http_archive(
     name = "com_github_atlassian_bazel_tools",
     strip_prefix = "bazel-tools-864fde1c98ab943cf8bc61768bff5473d1277068",
     urls = ["https://github.com/atlassian/bazel-tools/archive/864fde1c98ab943cf8bc61768bff5473d1277068.zip"],
+    sha256 = "dcbfe490c9a0583179f80e578edc25967fe7fec2ea1eca9a0fa6a6c01d029903",
 )
 load("@com_github_atlassian_bazel_tools//golangcilint:deps.bzl", "golangcilint_dependencies")
 
