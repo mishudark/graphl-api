@@ -1,66 +1,18 @@
 kind: pipeline
 name: bazel
 
-
 steps:
-  #- name: restore
-  #  image: plugins/s3-cache
-  #  settings:
-  #    pull: true
-  #    endpoint: http://minio.default
-  #    access_key: myaccesskey
-  #    secret_key: mysecretkey
-  #    restore: true
-  #    debug: false
-  #    workdir: /drone/src/external
-  #- name: cache
-  #  image: alpine:latest
-  #  volumes:
-  #  - name: cache
-  #    path: /root/bazel
-  #  commands:
-  #  - apk update
-  #  - apk add bash
-  #  - mkdir /root/bazel/distfiles
-  #  - cp distdir.sh /root/bazel/distfiles
-  #  - cd /root/bazel/distfiles
-  #  - chmod +x ./distdir.sh
-  #  - bash distdir.sh
-
 - name: test
-  image: gcr.io/cloud-builders/bazel:latest
+  image: mishudark/bazel:1.1
+  depends_on: [ clone ]
   volumes:
   - name: cache
     path: /root/bazel
   commands:
-    #- ls /root/bazel/distfiles
-  - apt install make -y
   - make bazel-test
   - make bazel-lint
   - make bazel-build
-    #- make bazel-build
-    #- rsync -a /root/bazel/output/external /drone/src/
-    #resources:
-    #  limits:
-    #    memory: 800Mi
 
-    #- name: cache
-    #  image: plugins/s3-cache
-    #  volumes:
-    #  - name: cache
-    #    path: /root/bazel
-    #  settings:
-    #    pull: true
-    #    endpoint: http://minio.default
-    #    access_key: myaccesskey
-    #    secret_key: mysecretkey
-    #    rebuild: true
-    #    mount:
-    #      - /drone/src/external
-    #
-    #    when:
-    #      event: push
-    #
 volumes:
 - name: cache
   host:

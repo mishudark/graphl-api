@@ -5,6 +5,8 @@ https://mirror.bazel.build/bazel_coverage_output_generator/releases/coverage_out
 https://github.com/bazelbuild/bazel-gazelle/releases/download/0.17.0/bazel-gazelle-0.17.0.tar.gz
 https://github.com/bazelbuild/rules_docker/archive/v0.8.1.tar.gz
 https://github.com/bazelbuild/rules_go/releases/download/0.18.6/rules_go-0.18.6.tar.gz
+https://dl.google.com/go/go1.12.6.linux-amd64.tar.gz
+https://github.com/atlassian/bazel-tools/archive/864fde1c98ab943cf8bc61768bff5473d1277068.zip
 "
 
 load_distfiles() {

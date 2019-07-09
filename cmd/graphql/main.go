@@ -19,7 +19,7 @@ import (
 const defaultPort = "8000"
 
 func main() {
-	log.Printf("Initializing GraphQL service...")
+	log.Printf("initializing GraphQL service...")
 
 	port := os.Getenv("PORT")
 	if len(port) == 0 {
