@@ -3,7 +3,7 @@ name: bazel
 
 steps:
 - name: test
-  image: mishudark/bazel:1.1
+  image: gcr.io/bazel-public/ubuntu1804:nojava
   volumes:
   - name: cache
     path: /root/bazel
