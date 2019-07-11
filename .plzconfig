@@ -6,6 +6,6 @@
 ; Or you can uncomment the following to pin everyone to a particular version;
 ; when you change it all users will automatically get updated.
 ; [please]
-; version = 13.1.10
+; version = 14.0.0-beta4
 [go]
 importpath = github.com/mishudark/graphql-api

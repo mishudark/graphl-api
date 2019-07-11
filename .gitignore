@@ -41,3 +41,6 @@ Session.vim
 
 vendor
 /bazel-*
+
+# Please output directory
+plz-out

@@ -3,7 +3,10 @@ name: bazel
 
 steps:
 - name: test
-  image: gcr.io/bazel-public/ubuntu1804:nojava
+  image: mishudark/bazel:1.4
+  resources:
+    limit:
+      cpu: 1
   volumes:
   - name: cache
     path: /root/bazel
@@ -12,6 +15,7 @@ steps:
   commands:
     #- apt install rsync -y
     #- rsync -a /workspace/.bazel /root/output/
+  - rm $HOME/.bazelrc
   - make bazel-test
   - make bazel-build
   - make bazel-lint && echo "done"
