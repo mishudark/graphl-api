@@ -4,6 +4,6 @@ go:
 - 1.12.x
 
 script:
-  make lint
-  make test
-  make image-static
+  - make lint
+  - make test
+  - make image-static
