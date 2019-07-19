@@ -1,7 +1,12 @@
 -include project.mk
 .PHONY: help
 .DEFAULT_GOAL := help
-SHELL := /bin/bash
+SHELL         := /bin/bash
+
+export GOPATH  := $(HOME)
+export GOBIN   := $(GOPATH)/bin
+export PATH    := $(GOBIN):$(PATH)
+export GOPROXY := https://goproxy.io
 
 IMAGE_NAME          ?=
 GO_MAIN_PATH        ?=
@@ -9,7 +14,7 @@ IMAGE_ENABLE        ?= false
 IMAGE_BASE          ?= golang:alpine
 PORT                ?= 8000
 GO_BUILD_FLAGS      ?= -ldflags "-d -s -w" -tags netgo -installsuffix netgo
-PACKAGE_TIMESTAMP   ?= latest
+PACKAGE_TIMESTAMP   ?= $(shell git log -1 --format=%h)
 PUBLISH             ?= false
 DOCKER_PUBLISH_URL  ?=
 DOCKER_PUBLISH_USER ?=
@@ -188,16 +193,6 @@ build: |gomod cache dockerfile
 test: |gomod cache image-build
 	docker run -w /build -v $(shell pwd):/build -v $(shell pwd)/$(.CACHE):$(GO_MOD_CACHE) -e GO111MODULE=on -e CGO_ENABLED=0 $(IMAGE_NAME)-build go test $(GO_BUILD_FLAGS) ./...
 
-ifeq ($(PUBLISH),true)
-publish: ## Publish a container to a docker registry [IMAGE_ENABLE and PUBLISH required]
-	@make publish-impl
-publish-impl:
-	@docker login -u $(DOCKER_PUBLISH_USER) -p $(DOCKER_PUBLISH_PWD) $(DOCKER_PUBLISH_URL)
-	$(eval PACKAGE_TIMESTAMP := $(shell docker images -q $(IMAGE_NAME)))
-	docker tag $(shell docker images -q $(IMAGE_NAME)) $(DOCKER_PUBLISH_URL)/$(DOCKER_PUBLISH_TAG):$(PACKAGE_TIMESTAMP)
-	docker push $(DOCKER_PUBLISH_URL)/$(DOCKER_PUBLISH_TAG):$(PACKAGE_TIMESTAMP)
-endif
-
 endif
 
 ifeq ($(IMAGE_ENABLE), false)
@@ -219,5 +214,9 @@ vendor: ## Download the dependencies
 vendor-impl: |gomod
 	GO111MODULE=on go mod download
 endif
-
 endif
+
+publish: ## Publish a container to a docker registry [IMAGE_ENABLE and PUBLISH required]
+	@docker login -u $(DOCKER_PUBLISH_USER) -p $(DOCKER_PUBLISH_PWD) $(DOCKER_PUBLISH_URL)
+	docker tag $(shell docker images -q $(IMAGE_NAME)) $(DOCKER_PUBLISH_URL)/$(DOCKER_PUBLISH_TAG):$(PACKAGE_TIMESTAMP)
+	docker push $(DOCKER_PUBLISH_URL)/$(DOCKER_PUBLISH_TAG):$(PACKAGE_TIMESTAMP)
