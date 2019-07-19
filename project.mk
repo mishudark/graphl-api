@@ -1,6 +1,6 @@
 GO_MAIN_PATH  = ./cmd/graphql
 IMAGE_NAME = server
-IMAGE_ENABLE = true
+IMAGE_ENABLE = false
 PUBLISH = false
 
 DOCKER_PUBLISH_TAG =

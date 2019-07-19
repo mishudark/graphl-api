@@ -49,6 +49,19 @@ PACKAGE_TIMESTAMP = $(shell git rev-list --max-count=1 --timestamp HEAD | awk '{
 endif
 endif
 
+define PROJECT_TRAVIS
+language: go
+
+go:
+- 1.12.x
+
+script:
+  - make lint
+  - make test
+  - make image-static
+endef
+export PROJECT_TRAVIS
+
 define PROJECT_MK_CONTENT
 GO_MAIN_PATH  =
 IMAGE_NAME = server
@@ -73,7 +86,9 @@ help: ## Show this help message.
 
 ifneq ($(.PROJECT_MK),$(wildcard $(.PROJECT_MK)))
 	@echo "$$PROJECT_MK_CONTENT" > project.mk
+	@echo "$$PROJECT_TRAVIS" > .travis.yml
 	$(info project.mk has been created, please review the config there)
+	$(info .travis.yml has been created, please configure your CI)
 	$(info )
 else
 $(call check_defined, GO_MAIN_PATH, path to the main.go package required on project.mk)
