@@ -15,7 +15,7 @@ BAZEL_REPOSITORY      = --repository_cache=${PREFIX}/bazel/repository_cache
 BAZEL_FLAGS           = --experimental_remote_download_outputs=minimal --experimental_inmemory_jdeps_files --experimental_inmemory_dotd_files
 
 BAZEL_BUILDKITE       = --flaky_test_attempts=3 --build_tests_only --local_test_jobs=12 --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest --experimental_repository_cache_hardlinks --disk_cache= --sandbox_tmpfs_path=/tmp --experimental_build_event_json_file_path_conversion=false --build_event_json_file=/tmp/test_bep.json --disk_cache=${PREFIX}/bazel/cas --test_output=errors
-BAZEL_BUILDKITE_BUILD = --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest --experimental_repository_cache_hardlinks --disk_cache= --sandbox_tmpfs_path=/tmp --disk_cache=${PREFIX}/bazel/cas
+BAZEL_BUILDKITE_BUILD = --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest
 BAZEL_REMOTE          = --remote_cache=http://localhost:8080
 LINUX                 = --platforms=@io_bazel_rules_go//go/toolchain:linux_amd64
 INCOMPATIBLE          = --incompatible_no_rule_outputs_param=false
@@ -191,4 +191,4 @@ init: # Generate the initial files to run bazel
 	@echo '	    prefix = "github.com/MY_ORG/MY_REPO"'
 
 remote: |bazelisk
-	@$(.BAZEL) build $(LINUX) --config=mycluster-ubuntu16-04 //cmd/graphql:server
+	@$(.BAZEL) build $(BAZEL_FLAGS) $(BAZEL_BUILDKITE_BUILD) $(LINUX) --config=mycluster-ubuntu16-04 //cmd/graphql:server

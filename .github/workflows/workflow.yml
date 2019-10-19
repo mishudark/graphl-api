@@ -1,0 +1,12 @@
+on: [push]
+name: Bazel remote build
+jobs:
+  build:
+    name: run
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+    - name: Remote
+      run: make remote
+
