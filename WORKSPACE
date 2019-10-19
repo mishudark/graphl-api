@@ -4,22 +4,13 @@ load(
 )
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
-#git_repository(
-#    name = "bazel_skylib",
-#    remote = "https://github.com/bazelbuild/bazel-skylib.git",
-#    tag = "0.5.0",
-#)
-#
-#load("@bazel_skylib//:lib.bzl", "versions")
-
-#versions.check(minimum_bazel_version = "0.22.0")
-
 http_archive(
     name = "io_bazel_rules_go",
     urls = [
-        "https://github.com/bazelbuild/rules_go/releases/download/0.18.6/rules_go-0.18.6.tar.gz",
+        "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/rules_go/releases/download/v0.20.1/rules_go-v0.20.1.tar.gz",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.20.1/rules_go-v0.20.1.tar.gz",
     ],
-    sha256 = "f04d2373bcaf8aa09bccb08a98a57e721306c8f6043a2a0ee610fd6853dcde3d",
+    sha256 = "842ec0e6b4fbfdd3de6150b61af92901eeb73681fd4d185746644c338f51d4c0",
 )
 
 load(
@@ -30,8 +21,11 @@ load(
 
 http_archive(
     name = "bazel_gazelle",
-    urls = ["https://github.com/bazelbuild/bazel-gazelle/releases/download/0.17.0/bazel-gazelle-0.17.0.tar.gz"],
-    sha256 = "3c681998538231a2d24d0c07ed5a7658cb72bfb5fd4bf9911157c0e9ac6a2687",
+    urls = [
+        "https://storage.googleapis.com/bazel-mirror/github.com/bazelbuild/bazel-gazelle/releases/download/v0.19.0/bazel-gazelle-v0.19.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.19.0/bazel-gazelle-v0.19.0.tar.gz",
+    ],
+    sha256 = "41bff2a0b32b02f20c227d234aa25ef3783998e5453f7eade929704dcff7cd4b",
 )
 
 load(
@@ -48,9 +42,9 @@ gazelle_dependencies()
 
 http_archive(
     name = "io_bazel_rules_docker",
-    sha256 = "87fc6a2b128147a0a3039a2fd0b53cc1f2ed5adb8716f50756544a572999ae9a",
-    strip_prefix = "rules_docker-0.8.1",
-    urls = ["https://github.com/bazelbuild/rules_docker/archive/v0.8.1.tar.gz"],
+    sha256 = "9ff889216e28c918811b77999257d4ac001c26c1f7c7fb17a79bc28abf74182e",
+    strip_prefix = "rules_docker-0.10.1",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.10.1/rules_docker-v0.10.1.tar.gz"],
 )
 
 load(
@@ -68,11 +62,42 @@ load(
 container_repositories()
 
 http_archive(
-    name = "com_github_atlassian_bazel_tools",
-    strip_prefix = "bazel-tools-864fde1c98ab943cf8bc61768bff5473d1277068",
-    urls = ["https://github.com/atlassian/bazel-tools/archive/864fde1c98ab943cf8bc61768bff5473d1277068.zip"],
-    sha256 = "dcbfe490c9a0583179f80e578edc25967fe7fec2ea1eca9a0fa6a6c01d029903",
+    name = "io_bazel_rules_k8s",
+    sha256 = "91fef3e6054096a8947289ba0b6da3cba559ecb11c851d7bdfc9ca395b46d8d8",
+    strip_prefix = "rules_k8s-0.1",
+    urls = ["https://github.com/bazelbuild/rules_k8s/releases/download/v0.1/rules_k8s-v0.1.tar.gz"],
 )
-load("@com_github_atlassian_bazel_tools//golangcilint:deps.bzl", "golangcilint_dependencies")
 
-golangcilint_dependencies()
+load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
+k8s_repositories()
+
+http_archive(
+    name = "com_google_protobuf",
+    strip_prefix = "protobuf-3.9.1",
+    urls = ["https://github.com/google/protobuf/archive/v3.9.1.zip"],
+    sha256 = "c90d9e13564c0af85fd2912545ee47b57deded6e5a97de80395b6d2d9be64854",
+)
+
+load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+
+protobuf_deps()
+
+http_archive(
+    name = "bazel_toolchains",
+    sha256 = "0b36eef8a66f39c8dbae88e522d5bbbef49d5e66e834a982402c79962281be10",
+    strip_prefix = "bazel-toolchains-1.0.1",
+    urls = [
+        "https://github.com/bazelbuild/bazel-toolchains/releases/download/1.0.1/bazel-toolchains-1.0.1.tar.gz",
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-toolchains/archive/1.0.1.tar.gz",
+    ],
+)
+
+load("@bazel_toolchains//rules:rbe_repo.bzl", "rbe_autoconfig")
+
+# Creates a default toolchain config for RBE.
+# Use this as is if you are using the rbe_ubuntu16_04 container,
+# otherwise refer to RBE docs.
+rbe_autoconfig(name = "rbe_default")
+
+load("//:repositories.bzl", "go_repositories")
+go_repositories()

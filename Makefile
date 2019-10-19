@@ -1,6 +1,7 @@
--include project.mk
+-include bazel.mk
 .PHONY: help
 .DEFAULT_GOAL := help
+SHELL         := /bin/bash
 
 help: ## Show this help message.
 	@echo 'usage: make [target]'

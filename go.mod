@@ -10,3 +10,5 @@ require (
 	github.com/vektah/gqlparser v1.1.1
 	go.opencensus.io v0.19.0
 )
+
+go 1.13
