@@ -191,4 +191,4 @@ init: # Generate the initial files to run bazel
 	@echo '	    prefix = "github.com/MY_ORG/MY_REPO"'
 
 remote: |bazelisk
-	@$(.BAZEL) build $(BAZEL_FLAGS) $(BAZEL_BUILDKITE_BUILD) $(LINUX) --config=mycluster-ubuntu16-04 //cmd/graphql:server
+	@$(.BAZEL) build $(BAZEL_FLAGS) $(BAZEL_BUILDKITE_BUILD) $(LINUX) --config=mycluster-ubuntu16-04 //cmd/graphql:docker
