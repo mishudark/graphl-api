@@ -190,7 +190,10 @@ init: # Generate the initial files to run bazel
 	@echo "modify this line into BUILD.bazel"
 	@echo '	    prefix = "github.com/MY_ORG/MY_REPO"'
 
-REMOTE_FLAGS = --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest --experimental_repository_cache_hardlinks --disk_cache= --sandbox_tmpfs_path=/tmp --remote_timeout=60 --remote_max_connections=200
+REMOTE_FLAGS = --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest --experimental_repository_cache_hardlinks --disk_cache= --sandbox_tmpfs_path=/tmp --remote_timeout=60 --remote_max_connections=200 --experimental_spawn_scheduler
+
+REMOTE_TEST = --flaky_test_attempts=3 --build_tests_only --local_test_jobs=12 --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest --experimental_repository_cache_hardlinks --disk_cache= --sandbox_tmpfs_path=/tmp --experimental_build_event_json_file_path_conversion=false --remote_timeout=60 --remote_max_connections=200
 
 remote: |bazelisk
-	@$(.BAZEL) build $(REMOTE_FLAGS) --config=mycluster-ubuntu16-04 //cmd/graphql:docker
+	@$(.BAZEL) build $(REMOTE_FLAGS) $(BAZEL_FLAGS) --config=mycluster-ubuntu16-04 //cmd/graphql:docker
+
