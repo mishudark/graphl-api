@@ -1,3 +1,4 @@
+
 .BAZELISK         := ./tools/bazelisk
 .UNAME_S          := $(shell uname -s)
 .BAZELISK_VERSION := 1.0
@@ -11,7 +12,8 @@ endif
 
 PREFIX                = ${HOME}
 BAZEL_OUTPUT          = --output_base=${PREFIX}/bazel/output
-BAZEL_REPOSITORY      = --repository_cache=${PREFIX}/bazel/repository_cache
+#BAZEL_REPOSITORY      = --repository_cache=${PREFIX}/bazel/repository_cache
+BAZEL_REPOSITORY = --repository_cache=/tmp/bazel/repository_cache --experimental_repository_cache_hardlinks
 BAZEL_FLAGS           = --experimental_remote_download_outputs=minimal --experimental_inmemory_jdeps_files --experimental_inmemory_dotd_files
 
 BAZEL_BUILDKITE       = --flaky_test_attempts=3 --build_tests_only --local_test_jobs=12 --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest --experimental_repository_cache_hardlinks --disk_cache= --sandbox_tmpfs_path=/tmp --experimental_build_event_json_file_path_conversion=false --build_event_json_file=/tmp/test_bep.json --disk_cache=${PREFIX}/bazel/cas --test_output=errors
@@ -35,7 +37,7 @@ separator:
 
 build: ## Build binaries
 	@make version
-	@$(.BAZEL) build $(BUILD_FLAGS) //:remote
+	@$(.BAZEL) build $(BUILD_FLAGS) $(BAZEL_REPOSITORY) //:remote
 
 docker: ## Build docker images
 	@make version
@@ -190,10 +192,15 @@ init: # Generate the initial files to run bazel
 	@echo "modify this line into BUILD.bazel"
 	@echo '	    prefix = "github.com/MY_ORG/MY_REPO"'
 
-REMOTE_FLAGS = --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest --experimental_repository_cache_hardlinks --disk_cache= --sandbox_tmpfs_path=/tmp --remote_timeout=60 --remote_max_connections=200 --experimental_spawn_scheduler
+REMOTE_FLAGS = --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest --experimental_repository_cache_hardlinks --disk_cache= --sandbox_tmpfs_path=/tmp --remote_timeout=60 --remote_max_connections=200 --experimental_spawn_scheduler
 
 REMOTE_TEST = --flaky_test_attempts=3 --build_tests_only --local_test_jobs=12 --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --verbose_failures --keep_going --jobs=32 --announce_rc --experimental_multi_threaded_digest --experimental_repository_cache_hardlinks --disk_cache= --sandbox_tmpfs_path=/tmp --experimental_build_event_json_file_path_conversion=false --remote_timeout=60 --remote_max_connections=200
 
 remote: |bazelisk
-	@$(.BAZEL) build $(REMOTE_FLAGS) $(BAZEL_FLAGS) --config=mycluster-ubuntu16-04 //cmd/graphql:docker
+	$(.BAZEL) build $(REMOTE_FLAGS) $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) --config=mycluster-ubuntu16-04 //cmd/graphql:docker
+	$(.BAZEL) test $(REMOTE_TEST) $(BAZEL_REPOSITORY) $(BAZEL_FLAGS) --config=mycluster-ubuntu16-04 //...
+
+
+sync:
+	bazel sync $(BAZEL_REPOSITORY) --experimental_repository_cache_hardlinks --show_progress_rate_limit=5 --curses=yes --color=yes --terminal_columns=143 --show_timestamps --keep_going --announce_rc
 
